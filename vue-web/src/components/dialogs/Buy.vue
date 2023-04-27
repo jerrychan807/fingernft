@@ -227,7 +227,7 @@
           }
         }, 100);
       },
-      async getOrder () {
+      async getOrder () { // 获取订单信息
         return new Promise((resolve, reject) => {
           var data = {
             caddress: this.nft.address,
@@ -236,6 +236,7 @@
             type: this.$sdk.valueOrderType("SALE"),
           };
           var that = this;
+          // 查询服务端订单信息
           this.$api("order.get", data).then((res) => {
             if (that.$tools.checkResponse(res)) {
               that.order = res.data;
@@ -289,13 +290,13 @@
       async onBuy () {
         if (this.isERC20 && this.step.approve != 2) return;
         this.step.buy = 1;
-        let order = await this.getOrder();
+        let order = await this.getOrder(); // 获取订单数据
         if (order.error) {
           this.error.all = order.error;
           this.step.buy = 0;
           return;
         }
-        let result = await this.buyOrder();
+        let result = await this.buyOrder(); // 对订单进行购买
         if (result.error) {
           this.error.buy = result.error;
           this.step.buy = 0;
@@ -357,6 +358,7 @@
                 v: res.data.v,
               };
               data.exchangeAddress = that.config.contract.nftExchangeAddress;
+              // 调用合约
               let result = await that.$sdk.exchangeOrder(
                 that.user.coinbase,
                 data

@@ -16,8 +16,6 @@ module.exports = function(deployer) {
     const exchangeState= await ExchangeState.deployed();
     const exchangeOrderHolder = await ExchangeOrdersHolder.deployed();
 
-
-
     return deployer
       .deploy(
         NftExchange,

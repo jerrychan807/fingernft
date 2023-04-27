@@ -28,6 +28,7 @@ contract NFT721 is Ownable, SignerRole, IERC721, ERC721Base {
     }
 
     function mint(uint256 tokenId, uint8 v, bytes32 r, bytes32 s, Fee[] memory _fees, string memory tokenURI) public {
+        // 对TokenId进行签名
         require(isSigner(ecrecover(keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(this, tokenId)))), v, r, s)), "owner should sign tokenId");
         _mint(msg.sender, tokenId, _fees);
         _setTokenURI(tokenId, tokenURI);

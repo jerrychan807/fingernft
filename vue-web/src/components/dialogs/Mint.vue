@@ -22,6 +22,7 @@
             <img class="loading-animation" src="@/assets/img/loading.png" />
           </div>
         </div>
+        // 授权
         <div class="process-btn">
           <el-button @click="onApprove" type="primary" v-if="step.approve == 0">
             {{$t('dialog.approve')}}</el-button>
@@ -31,6 +32,7 @@
         </div>
         <div class="process-error" v-if="error.approve">{{ error.approve }}</div>
       </div>
+      // 文件上传
       <div class="process">
         <div class="step-info">
           <div class="text">
@@ -153,7 +155,7 @@
       },
     },
     methods: {
-      async fileUp () {
+      async fileUp () { // 上传文件
         if (this.nft.form.onSale && this.step.approve != 2) return;
         this.step.fileUp = 1;
         let asset = this.asset;
@@ -200,7 +202,7 @@
           await this.fileUp();
         }
       },
-      async onApprove () {
+      async onApprove () { // 授权
         if (!this.nft.form.onSale) return;
         this.step.approve = 1;
         let asset = this.asset;
@@ -268,6 +270,8 @@
           fileUp: "",
         };
       },
+      // 授权
+      // 授权给 代理转移合约地址
       async setApproveAll (asset) {
         let isApproved = await this.$sdk.isApprovedForAll(
           asset,
@@ -320,6 +324,7 @@
           });
         });
       },
+      // 铸造
       async mintToken (asset) {
         return new Promise((resolve, reject) => {
           let data = { address: asset.address };
@@ -366,7 +371,7 @@
                   asset.tokenURI = asset.tokenURI.replace('ipfs:/', '')
 
                   let result;
-                  result = await that.$sdk.mintToken(
+                  result = await that.$sdk.mintToken( // 铸造
                     that.user.coinbase,
                     asset
                   );
@@ -392,27 +397,28 @@
  
           var data = {
             owner: this.user.coinbase,
-            sellToken: asset.address,
-            sellTokenId: asset.tokenId,
-            sellValue: 1,
-            sellType: this.$sdk.valueAssetType("ERC721"),
-            buyToken: paytoken.address,
+            sellToken: asset.address, // NFT地址
+            sellTokenId: asset.tokenId,// NFT TokenId
+            sellValue: 1, //
+            sellType: this.$sdk.valueAssetType("ERC721"), // 资产类型
+            buyToken: paytoken.address, // 支付Token合约地址
             buyTokenId: "0",
-            buyValue: buyValue,
-            buyType: paytoken.type,
+            buyValue: buyValue, // 购买价格
+            buyType: paytoken.type, // 支付Token类型
             salt: "0",
-            type: this.$sdk.valueCommonType("SALE")
+            type: this.$sdk.valueCommonType("SALE") // 订单类型
           };
           let that = this;
           this.$api("order.prepare", data).then(async function (res) {
             if (that.$tools.checkResponse(res)) {
-              let message = res.data.message;
+              let message = res.data.message; // message为签名
               if (message.startsWith("0x")) {
                 message = message.slice(2, message.length);
               }
               let salt = res.data.salt;
               let signature = "";
               try {
+                // 用户地址+签名  再签名
                 signature = await that.$web3.sign(message, that.user.coinbase);
                 if (signature.error) {
                   return resolve(signature);

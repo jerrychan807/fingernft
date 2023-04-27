@@ -109,12 +109,12 @@ public class FcContractService {
 
 
 	public Object MinerTokenId(String address){
-		String tokenId = this.getMinerTokenId(address);
+		String tokenId = this.getMinerTokenId(address); // 获取最新tokenId
 		if(null == tokenId){
 			return ResponseUtil.fail(-1, "tokenId is null");
 		}
 		ConfigDeploy configDeploy = this.systemConfigManager.getConfigDeploy();
-		String minerKey = configDeploy.getMinerKey();
+		String minerKey = configDeploy.getMinerKey(); // 用的是官方地址
 		VSRSignInfo info = DappCryptoUtil.minerSign(address, tokenId, minerKey);
 		if(null == info){
 			return ResponseUtil.fail(-1, "sign TokenId fail");

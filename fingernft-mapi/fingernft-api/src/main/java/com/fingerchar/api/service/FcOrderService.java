@@ -55,6 +55,7 @@ public class FcOrderService{
     IBaseService baseService;
 
     @Transactional(rollbackFor = Exception.class)
+    // 添加订单
     public Object addOrder(PrepareOrderInfo order) {
         CommonStatus status = CommonStatus.getStatusByType(order.getType());
         switch (status) {
@@ -118,12 +119,12 @@ public class FcOrderService{
         if (null == contract) {
             return ResponseUtil.badArgumentValue();
         }
-
+        // 合约地址
         FcContractNft nft = this.contractNftManager.get(info.getSellToken(), info.getSellTokenId());
         if (null == nft) {
             return ResponseUtil.fail(-1, "Then token is not existed or bured");
         }
-
+        // NFT
         FcNftItems nftItems = this.nftItemsManager.get(info.getSellToken(), info.getSellTokenId(), info.getOwner());
 
         if (null == nftItems) {
@@ -134,12 +135,13 @@ public class FcOrderService{
         ) {
             return ResponseUtil.fail(-1, "no enough quantity");
         }
-
+        // 支付Token
         FcPayToken payToken = this.payTokenManager.get(info.getBuyToken());
         if (null == payToken) {
             return ResponseUtil.fail(-1, "Unkown pay type");
         }
 
+        // 订单
         FcOrder order = this.orderManager.getSellOrder(info.getSellToken(), info.getSellTokenId(), info.getOwner());
         if (info.getType().equals(2)) {
             if (null == order) {
@@ -167,6 +169,7 @@ public class FcOrderService{
 
 
     public Object prepareOrder(PrepareOrderInfo info, FcUser user) {
+        // 读取Sell费率
         String sellFee = this.systemConfigManager.getKeyValue(SysConfConstant.SELLER_FEE);
         if (null == sellFee) {
             return ResponseUtil.fail(-1, "unset sellFee");
@@ -179,13 +182,13 @@ public class FcOrderService{
 
         info.setSellFee(sellFee);
         SignOrderInfo signOrder = new SignOrderInfo(info);
-        signOrder = DappCryptoUtil.prepareOrder(signOrder);
+        signOrder = DappCryptoUtil.prepareOrder(signOrder); // 对order进行签名
         info.setMessage(signOrder.getSignature());
         info.setSalt(signOrder.getSalt());
         return ResponseUtil.ok(info);
     }
 
-
+    // 购买订单预处理
     public Object buyPrepare(PrepareOrderInfo orderInfo) {
         FcOrder order = null;
         if (orderInfo.getType().intValue() == 1) {
@@ -209,7 +212,8 @@ public class FcOrderService{
         SignOrderInfo signOrder = new SignOrderInfo(info);
 
         ConfigDeploy configDeploy = this.systemConfigManager.getConfigDeploy();
-        String buyerFeeKey = configDeploy.getBuyerFeeKey();
+        String buyerFeeKey = configDeploy.getBuyerFeeKey(); // 用的是官方钱包地址
+        // 对订单进行签名
         signOrder = DappCryptoUtil.orderSign(signOrder, order.getBuyFee(), buyerFeeKey);
         info.setSignature(signOrder.getSignature());
         info.setR(signOrder.getR());

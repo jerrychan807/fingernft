@@ -83,7 +83,7 @@ contract NftExchange is Ownable, ExchangeDomain {
         uint amount,
         address buyer
     ) payable external {
-        validateOrderSig(order, sig);
+        validateOrderSig(order, sig); // 验证签名
         validateBuyerFeeSig(order, buyerFee, buyerFeeSig);
         uint paying = order.buying.mul(amount).div(order.selling);
         verifyOpenAndModifyOrderState(order.key, order.selling, amount);
@@ -96,7 +96,7 @@ contract NftExchange is Ownable, ExchangeDomain {
             buyer = msg.sender;
         }
         /* SELL = accept, BUY = buy */
-        transferWithFeesPossibility(order.key.sellAsset, amount, order.key.owner, buyer, feeSide == FeeSide.SELL, buyerFee, order.sellerFee, order.key.buyAsset); 
+        transferWithFeesPossibility(order.key.sellAsset, amount, order.key.owner, buyer, feeSide == FeeSide.SELL, buyerFee, order.sellerFee, order.key.buyAsset);
         transferWithFeesPossibility(order.key.buyAsset, paying, msg.sender, order.key.owner, feeSide == FeeSide.BUY, order.sellerFee, buyerFee, order.key.sellAsset);
         emitBuy(order, amount, buyer);
     }
@@ -112,6 +112,7 @@ contract NftExchange is Ownable, ExchangeDomain {
         emit Cancel(key.sellAsset.token, key.sellAsset.tokenId, msg.sender, key.buyAsset.token, key.buyAsset.tokenId, key.salt);
     }
 
+    // 验证订单签名
     function validateOrderSig(
         Order memory order,
         Sig memory sig
@@ -123,6 +124,7 @@ contract NftExchange is Ownable, ExchangeDomain {
         }
     }
 
+    // 验证签名
     function validateBuyerFeeSig(
         Order memory order,
         uint buyerFee,
